@@ -1,6 +1,8 @@
 package new_database;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -151,6 +153,27 @@ public class WordRepository {
 
     }
 
+    public static double getAbsolutFrequency(String word, String lang) throws SQLException {
+        int count = countWords(lang);
+        return count >0? (double)getFrequency(word, lang)/(double)count:0;
+    }
+
+    public static int getFrequency(String word, String lang) throws SQLException {
+        int l_id = LanguageRepository.getIDbyName(lang);
+        String sql = "SELECT frequency from words WHERE word = ? and language_id = ?";
+        try (Connection conn = DatabaseConnection.connection) {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, word);
+            ps.setInt(2, l_id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("frequency");
+                }
+            }
+        }
+        return -1;
+    }
+
     public static int countNumOfWordsWithFrequency(int frequency) throws SQLException, IOException {
         String query = "SELECT COUNT(*) FROM words WHERE frequency = ?";
 
@@ -167,6 +190,25 @@ public class WordRepository {
         }
     }
 
+    public static int getWordRank(String word, String language) throws SQLException {
+        int lan_id = LanguageRepository.getIDbyName(language);
+        String sql = "SELECT COUNT(*) from words WHERE frequency > ? AND language_id = ?";
+        int freq = getFrequency(word, language);
+
+        try(Connection connection = DatabaseConnection.connection) {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, freq);
+            ps.setInt(2, lan_id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) + 1; // Получить значение счетчика (первую колонку в результате)
+                } else {
+                    return 0; // Если нет результатов, вернуть 0
+                }
+            }
+        }
+    }
 }
 
 

@@ -1,10 +1,9 @@
 package new_GUI;
 
-import new_database.FileRepository;
+import laws.ZipfWindow;
 import new_database.LanguageRepository;
 import new_dictionary.FrequencyDictionary;
 import new_dictionary.CustomTable;
-import old.database.DatabaseConnection;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,6 +23,7 @@ public class FrequencyDictionaryWindow extends JFrame {
 
     private static LanguageSelectionWindow menuFrame;
     private static FrequencyDictionaryWindow mainFrame;
+    private static ZipfWindow zipfWindow;
 
     public FrequencyDictionaryWindow() {
         initWindow();
@@ -170,7 +170,7 @@ public class FrequencyDictionaryWindow extends JFrame {
         JButton bottomButton2 = new JButton("в меню");
         JButton bottomButton3 = new JButton("всего слов ");
         JButton bottomButton4 = new JButton("всего уникальных слов ");
-        JButton bottomButton5 = new JButton("всего уникальных слов ");
+        JButton bottomButton5 = new JButton("проверка законов ципфа ");
 
         buttonPanel.add(bottomButton1);
         buttonPanel.add(bottomButton2);
@@ -212,11 +212,9 @@ public class FrequencyDictionaryWindow extends JFrame {
         });
 
         bottomButton5.addActionListener(e -> {
-            try {
-                RunPythonScript.run();
-            } catch (SQLException | IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            zipfWindow = new ZipfWindow();
+            zipfWindow.setDictionary(dictionary);
+            zipfWindow.setVisible(true);
         });
 
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
